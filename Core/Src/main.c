@@ -66,6 +66,27 @@ static void MX_I2C3_Init(void);
 static void MX_USB_PCD_Init(void);
 static void MX_TIM16_Init(void);
 /* USER CODE BEGIN PFP */
+float fan_speed_1, fan_speed_2 = 0;
+
+void control_rotation(float desired_rotation, float actual_rotation) {
+	// Prepracovat ako PID kontroler, ak to nebude fungovat
+	if (actual_rotation-desired_rotation > 10.5) {
+		fan_speed_1 = -1000;
+		fan_speed_2 = -1000;
+		set_fan_speed(fan_speed_1);
+		set_fan_speed2(fan_speed_2);
+	}else if (actual_rotation-desired_rotation < -10.5){
+		fan_speed_1 = 1000;
+		fan_speed_2 = 1000;
+		set_fan_speed(fan_speed_1);
+		set_fan_speed2(fan_speed_2);
+	}else{
+		fan_speed_1 = 0;
+		fan_speed_2 = 0;
+		set_fan_speed(fan_speed_1);
+		set_fan_speed2(fan_speed_2);
+	}
+}
 
 /* USER CODE END PFP */
 
@@ -75,7 +96,6 @@ float GyroX, GyroY, GyroZ;
 float AccelX, AccelY, AccelZ;
 float GyroRoll, GyroPitch, AccelRoll, AccelPitch;
 uint32_t ch1_counter_val, ch2_counter_val;
-float fan_speed_1, fan_speed_2 = 0;
 /* USER CODE END 0 */
 
 /**
@@ -187,10 +207,30 @@ int main(void)
 	  AccelRoll = MPU6050.Accel_Roll;
 	  AccelPitch = MPU6050.Accel_Pitch;
 
+	  control_rotation(0, GyroY);
 	  //fan_speed_1 = (AccelZ/10.5 * 1000);
-	  fan_speed_2 = fan_speed_1;
+	  /*fan_speed_1 = 0;
+	  fan_speed_2 = 0;
 	  set_fan_speed(fan_speed_1);
 	  set_fan_speed2(fan_speed_2);
+	  HAL_Delay(2000);
+
+	  fan_speed_1 = 600;
+	  fan_speed_2 = 600;
+	  set_fan_speed(fan_speed_1);
+	  set_fan_speed2(fan_speed_2);
+	  HAL_Delay(2000);
+
+	  fan_speed_1 = 900;
+	  fan_speed_2 = 900;
+	  set_fan_speed(fan_speed_1);
+	  set_fan_speed2(fan_speed_2);
+	  HAL_Delay(2000);
+
+	  fan_speed_1 = -900;
+	  fan_speed_2 = -900;*/
+
+	  //HAL_Delay(2000);
 
 	  /*ch1_counter_val = (TIM1->ARR)*0.8;
 	  TIM1->CCR1 = ch1_counter_val;
